@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service | {{ settings.site_name }}{% endblock %}
+{% block description %}The rules for using {{ settings.site_name }} to find, attend and run LAN parties.{% endblock %}
+{% block content %}
+{% set S = settings.site_name %}{% set O = settings.operator_name %}
+{% set CONTACT = settings.contact_email or "[set CONTACT_EMAIL]" %}{% set LAW = settings.governing_law or "[set GOVERNING_LAW]" %}
+{% set AGE = settings.min_age %}
+<article class="legal">
+<h1>Terms of Service</h1>
+<p class="meta">Last updated {{ settings.legal_updated }}</p>
+
+<div class="summary">
+  <p><b>The short version.</b> This summary is here to help you read the terms; the full text below is what applies.</p>
+  <ul>
+    <li>{{ S }} is a tool for listing and running LAN parties. Organizers run their events, sell their tickets and set their refund policies. We don't run, attend or inspect events.</li>
+    <li>You need to be at least {{ AGE }}, and under-18s need a parent or guardian's permission.</li>
+    <li>Card payments go through Stripe to the organizer's own Stripe account. If an organizer cancels an event on {{ S }}, every paid ticket is refunded automatically.</li>
+    <li>Organizers may only use attendee information to run their event.</li>
+    <li>You're responsible for your own gear at events. Bring a surge protector and keep backups.</li>
+  </ul>
+</div>
+
+<ol class="toc">
+  <li><a href="#agreement">This agreement</a></li>
+  <li><a href="#eligibility">Who can use {{ S }}</a></li>
+  <li><a href="#service">What {{ S }} is, and isn't</a></li>
+  <li><a href="#tickets">Registering and buying tickets</a></li>
+  <li><a href="#organizers">Hosting events</a></li>
+  <li><a href="#payments">Payments for organizers</a></li>
+  <li><a href="#conduct">Acceptable use</a></li>
+  <li><a href="#content">Your content</a></li>
+  <li><a href="#risk">Physical events and your equipment</a></li>
+  <li><a href="#termination">Suspension and deleting your account</a></li>
+  <li><a href="#third-party">Other services</a></li>
+  <li><a href="#disclaimers">Disclaimers</a></li>
+  <li><a href="#liability">Limitation of liability</a></li>
+  <li><a href="#indemnity">Indemnity</a></li>
+  <li><a href="#disputes">Disputes</a></li>
+  <li><a href="#changes">Changes to these terms</a></li>
+  <li><a href="#general">General</a></li>
+  <li><a href="#contact">Contact</a></li>
+</ol>
+
+<h2 id="agreement">1. This agreement</h2>
+<p>These terms are an agreement between you and {{ O }} ("we", "us"), which operates {{ S }} at {{ settings.base_url }}. By creating an account, signing in, registering for an event or hosting one, you agree to these terms and to our <a href="/privacy">Privacy Policy</a>. If you don't agree, don't use {{ S }}.</p>
+<p>If you use {{ S }} on behalf of a club, business or other organization, you're agreeing for that organization too, and you confirm you're allowed to.</p>
+
+<h2 id="eligibility">2. Who can use {{ S }}</h2>
+<p>You must be at least {{ AGE }} years old to create an account. If you're under 18, or under the age of majority where you live, you may use {{ S }} only with the permission of a parent or legal guardian, who agrees to these terms for you and is responsible for your use. Only adults may host events or sell tickets.</p>
+<p>Organizers can set their own, higher age requirements for an event, and may ask for proof of age or a guardian's consent at the door.</p>
+<p>You sign in with a link sent to your email, so your email account is the key to your {{ S }} account. Keep it secure, use an address only you control, and tell us at {{ CONTACT }} if you think someone else has accessed your account. One account per person; don't create accounts for other people without their permission.</p>
+<p>You can't use {{ S }} if we've previously banned you, or if you're barred from receiving services under the laws that apply to you.</p>
+
+<h2 id="service">3. What {{ S }} is, and isn't</h2>
+<p>{{ S }} provides software for listing events, taking registrations, selling tickets on an organizer's behalf, assigning seats, and running polls, tournament signups and announcements.</p>
+<p>The organizer of each event is responsible for that event. We are not the organizer, venue, promoter or seller of any event, we aren't a party to the arrangement between an organizer and the people who attend, and we don't attend, supervise, inspect or vouch for events, venues, organizers or attendees. We don't check that event listings are accurate or that organizers are who they say they are. Use your own judgment, especially for events held in private homes.</p>
+<p>We may change, add or remove features, and we may stop offering {{ S }} entirely. If we shut down, we'll give at least 30 days' notice on the site and by email to organizers with upcoming events, where we reasonably can.</p>
+
+<h2 id="tickets">4. Registering and buying tickets</h2>
+<h3>Your ticket is with the organizer</h3>
+<p>When you register or buy a ticket, you're dealing with the event's organizer. The organizer decides prices, capacity, seating, schedules, house rules and who may attend, and may change event details. You must follow the organizer's rules and the venue's rules at the event.</p>
+<h3>Paying</h3>
+<p>Paid tickets are processed by Stripe, Inc. You pay through Stripe Checkout; we never see or store your full card number. Prices are shown in {{ settings.currency|upper }} and include everything you're charged by {{ S }}; your bank may add its own fees, for example for foreign currency.</p>
+<p>When you start a paid registration, your spot is held for about 30 minutes while you pay. If you don't finish paying in time, the hold ends and the spot is released.</p>
+<h3>Refunds and cancellations</h3>
+<ul>
+  <li><b>If the organizer cancels the event on {{ S }},</b> every paid ticket is refunded in full to the original payment method automatically.</li>
+  <li><b>Otherwise, refunds are up to the organizer.</b> You can send a refund request from your ticket page, and the organizer decides. We don't guarantee refunds and we can't issue them on an organizer's behalf, except as part of a cancellation.</li>
+  <li><b>Free tickets</b> can be cancelled from your ticket page at any time before the event.</li>
+  <li>If an event is postponed, moved or changed and the organizer doesn't cancel it on {{ S }}, contact the organizer about a refund.</li>
+</ul>
+<p>Refunds usually reach your account within 5 to 10 business days, depending on your bank. Please contact the organizer before disputing a charge with your bank. Filing chargebacks in bad faith, for example after attending, can get your account suspended.</p>
+<p>Tickets are personal to the person who registered. Don't resell or transfer them unless the organizer allows it.</p>
+
+<h2 id="organizers">5. Hosting events</h2>
+<p>If you host an event on {{ S }}, you're responsible for it, and you agree that:</p>
+<ul>
+  <li><b>Your listing is honest.</b> The date, location, price, capacity and description are accurate, you keep them up to date, and you actually hold the event or cancel it on {{ S }} promptly if you can't.</li>
+  <li><b>You have the right to use the venue</b> and any permits, licenses or insurance the event needs, and you follow the venue's rules and local law, including fire codes and occupancy limits.</li>
+  <li><b>You run it safely.</b> Electrical load, cabling, ventilation, exits and crowd size are your responsibility. Don't sell more spots than your venue and power can safely handle.</li>
+  <li><b>Minors are your responsibility at your event.</b> If people under 18 may attend, you're responsible for any age limits, guardian consent and supervision your event needs, and for following the law on minors, including about alcohol.</li>
+  <li><b>Games and software are licensed properly.</b> You and your attendees must follow the license terms of any game, server or software used at your event. Don't use {{ S }} to distribute pirated software.</li>
+  <li><b>You state your refund policy</b> in your event description if it's anything other than "no refunds", and you honor it.</li>
+  <li><b>You handle taxes.</b> You're responsible for any sales tax, admission tax, income tax or reporting that applies to your ticket sales.</li>
+  <li><b>Events over {{ settings.free_capacity_limit }} people</b> may need our review before they're published. We can decline to approve any event.</li>
+</ul>
+<h3>Attendee information</h3>
+<p>You'll see your attendees' email addresses, names, gamer tags, ticket types, seats and anything they send you, like refund requests. You may use this only to run and communicate about the event they registered for. You may not add attendees to marketing lists, sell or share their information, or contact them about unrelated things without their separate consent. Keep it secure, follow privacy law that applies to you, and delete it when you no longer need it for the event or your records. You're responsible for your own use of attendee data; our <a href="/privacy">Privacy Policy</a> covers only ours.</p>
+<p>Announcements you email through {{ S }} must be about your event. We limit how many you can send per day.</p>
+
+<h2 id="payments">6. Payments for organizers</h2>
+<p>To sell paid tickets, you must connect a Stripe account. Payment processing services for organizers on {{ S }} are provided by Stripe and are subject to the <a href="https://stripe.com/legal/connect-account" target="_blank" rel="noopener">Stripe Connected Account Agreement</a>, which includes the <a href="https://stripe.com/legal/ssa" target="_blank" rel="noopener">Stripe Terms of Service</a> (collectively, the "Stripe Services Agreement"). By agreeing to these terms or continuing to operate as an organizer on {{ S }}, you agree to be bound by the Stripe Services Agreement, as Stripe may modify it from time to time. As a condition of {{ S }} enabling payment processing services through Stripe, you agree to provide {{ S }} accurate and complete information about you and your business, and you authorize {{ S }} to share it and transaction information related to your use of the payment processing services provided by Stripe.</p>
+<ul>
+  <li>Tickets are charged on your behalf and paid into your Stripe account. Stripe pays out to your bank on its schedule. Stripe's processing fees apply and are deducted by Stripe.</li>
+  {% if settings.platform_fee_percent %}<li>We charge a platform fee of {{ '%g'|format(settings.platform_fee_percent) }}% of each paid ticket, deducted before the money reaches your account. We'll give at least 30 days' notice before raising it, and a change never applies to tickets already sold.</li>
+  {% else %}<li>We don't currently charge a platform fee. If we introduce one, we'll give at least 30 days' notice, and it won't apply to tickets already sold.</li>{% endif %}
+  <li>Refunds you issue, and the automatic refunds when you cancel an event, come out of your Stripe balance{% if settings.platform_fee_percent %} (our platform fee on a refunded ticket is returned too){% endif %}. Make sure your balance can cover them.</li>
+  <li>Chargebacks and disputes on your tickets are yours to handle through Stripe, and any amounts Stripe recovers come from your account. If Stripe recovers money from us for your tickets because your account can't cover it, you agree to repay us.</li>
+  <li>We can disable paid ticketing for an event or account where we reasonably suspect fraud, a breach of these terms, or a risk of large refunds or disputes, for example an event that looks unlikely to happen.</li>
+</ul>
+
+<h2 id="conduct">7. Acceptable use</h2>
+<p>Don't use {{ S }} to:</p>
+<ul>
+  <li>list fake events, events you don't intend to hold, or events that are illegal where they take place, or collect money under false pretenses;</li>
+  <li>harass, threaten, dox or discriminate against anyone, or post hateful, sexually explicit or violent content, including in event descriptions, gamer tags and announcements;</li>
+  <li>promote gambling, sell alcohol, drugs, weapons or other regulated goods, or arrange anything unlawful involving minors;</li>
+  <li>infringe someone else's intellectual property or privacy, or impersonate a person or organization;</li>
+  <li>send spam or unrelated advertising, or scrape, copy or harvest data from the site, including attendee lists;</li>
+  <li>probe, overload or break the site's security, get around rate limits, bans or capacity limits, or access accounts or data that aren't yours (if you've found a security problem, please report it to {{ CONTACT }} instead); or</li>
+  <li>help anyone else do any of the above.</li>
+</ul>
+
+<h2 id="content">8. Your content</h2>
+<p>You own what you post: event descriptions, announcements, poll questions, names and gamer tags. You give us a non-exclusive, worldwide, royalty-free license to host, store, display, reproduce and send that content as needed to run {{ S }}, for example showing your event page publicly and emailing your announcements to attendees. The license ends when the content is deleted, except for copies kept for a limited time in backups or as the law requires.</p>
+<p>You're responsible for your content and confirm you have the rights to post it. We may remove content or unpublish events that break these terms or the law, or that we receive a credible complaint about. We'll usually tell you why, unless doing so would be unsafe or unlawful.</p>
+<p>To report a listing, infringing content or a safety concern, email {{ CONTACT }}.</p>
+
+<h2 id="risk">9. Physical events and your equipment</h2>
+<p>LAN parties involve your own computer and peripherals, shared power and networks, and other people, often late at night. You attend at your own risk. Neither we nor {{ S }} is responsible for:</p>
+<ul>
+  <li>loss, theft of or damage to your equipment, including from power surges, outages, spills or transport;</li>
+  <li>malware, data loss or security problems from connecting to an event network; or</li>
+  <li>injury, illness or anything else that happens at or traveling to or from an event.</li>
+</ul>
+<p>Use a surge protector, keep backups, run up-to-date security software, and take the same care you'd take at any gathering. Concerns about an event's safety should go to the organizer, and to the authorities if there's danger.</p>
+
+<h2 id="termination">10. Suspension and deleting your account</h2>
+<p>You can delete your account at any time from <a href="/me/delete">your account page</a>, once you've cancelled any upcoming registrations and events. What happens to your data is explained in the <a href="/privacy#retention">Privacy Policy</a>.</p>
+<p>We may suspend or close your account, unpublish your events or remove you from events if you break these terms, if we're required to by law, or to protect people or the site. Where reasonable, we'll warn you first and give you a chance to fix the problem. If we close an organizer's account, we may cancel their upcoming events, which refunds paid tickets automatically.</p>
+<p>Sections 4 (refunds), 5 (attendee information), 6 (payments), 8 (content license for what's already been sent), and 9 through 17 continue to apply after your account ends.</p>
+
+<h2 id="third-party">11. Other services</h2>
+<p>{{ S }} relies on and links to services we don't control, including Stripe, email providers, and bracket and tournament sites that organizers link to. Their own terms and privacy policies apply to them, and we're not responsible for them.</p>
+
+<h2 id="disclaimers">12. Disclaimers</h2>
+<p>We work to keep {{ S }} running well, but it's provided "as is" and "as available". To the fullest extent the law allows, we disclaim all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, title and non-infringement, and any warranty that the site will be uninterrupted, error-free or secure, or that emails will arrive. We make no promises about any event, organizer, venue or attendee.</p>
+<p>Some places don't allow these disclaimers, so some of them may not apply to you.</p>
+
+<h2 id="liability">13. Limitation of liability</h2>
+<p>To the fullest extent the law allows, {{ O }} and its owners, employees and contractors are not liable for any indirect, incidental, special, consequential or punitive damages, or for lost profits, revenue, data or goodwill, arising from or related to {{ S }}, any event, or these terms, even if we were told such damages were possible.</p>
+<p>Our total liability for all claims related to {{ S }} or these terms is limited to the greater of (a) the platform fees you paid us in the 12 months before the claim arose, or (b) US $100. Ticket money paid to an organizer is not a fee paid to us; claims about a ticket purchase are with the organizer.</p>
+<p>Nothing in these terms limits liability that can't be limited by law, such as liability for fraud, gross negligence or willful misconduct.</p>
+
+<h2 id="indemnity">14. Indemnity</h2>
+<p>If you host events, you'll defend and indemnify {{ O }} against third-party claims, and related losses and reasonable legal costs, arising from your events, your listings and content, your use of attendee information, your ticket sales and taxes, or your breach of these terms or the law. Anyone else using {{ S }} agrees to the same for claims arising from their own content, conduct or breach of these terms. We'll tell you promptly about any such claim and cooperate reasonably.</p>
+
+<h2 id="disputes">15. Disputes</h2>
+<p><b>Between users.</b> Disputes between attendees and organizers, or between attendees, are between those people. We may try to help, but we're not obliged to, and you release us from claims arising from those disputes to the extent the law allows.</p>
+<p><b>With us.</b> Please email {{ CONTACT }} first; most problems get sorted out quickly that way. If we can't resolve it informally within 30 days, these terms and any dispute about them are governed by the laws of {{ LAW }}, without regard to conflict-of-laws rules, and the state and federal courts located in {{ LAW }} have exclusive jurisdiction. Either of us may bring a qualifying claim in small claims court instead. If you're a consumer living somewhere that gives you the right to sue in your local courts or to rely on local consumer law, nothing here takes that away.</p>
+
+<h2 id="changes">16. Changes to these terms</h2>
+<p>We may update these terms as {{ S }} changes or the law requires. We'll post the new version here with a new date. For changes that materially affect you, we'll give at least 14 days' notice on the site and by email to account holders before they take effect, unless a change is legally required sooner. If you keep using {{ S }} after a change takes effect, you're agreeing to the new terms; if you don't agree, delete your account before then. Changes don't apply retroactively to disputes we already knew about.</p>
+
+<h2 id="general">17. General</h2>
+<p>These terms and the Privacy Policy are the whole agreement between you and us about {{ S }}. If a court finds part of these terms unenforceable, that part is limited as little as possible and the rest stays in effect. If we don't enforce something right away, we haven't given up the right to enforce it later. You can't transfer your rights under these terms without our written consent; we may transfer ours to a successor that takes over {{ S }}, and we'll tell you if that happens. We're not responsible for delays or failures caused by things beyond our reasonable control, such as outages at our hosting, email or payment providers. The section headings are for convenience only.</p>
+
+<h2 id="contact">18. Contact</h2>
+<p>{{ O }}<br>Email: {% if settings.contact_email %}<a href="mailto:{{ CONTACT }}">{{ CONTACT }}</a>{% else %}{{ CONTACT }}{% endif %}</p>
+</article>
+{% endblock %}

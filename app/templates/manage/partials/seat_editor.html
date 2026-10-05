@@ -1,0 +1,12 @@
+<div id="seat-editor">
+  {% if seat_error %}<div class="notice error" role="alert">{{ seat_error }}</div>{% endif %}
+  <p class="small muted">Tap a seat to turn it into a gap (an aisle, a pillar, the snack table). Tap again to bring it back. Effective capacity: <b>{{ capacity }}</b>.</p>
+  <div class="seatmap"><div class="seats" style="grid-template-columns: repeat({{ grid[0]|length }}, 40px)">
+  {% for row in grid %}{% for c in row %}
+    <button type="button" class="seat editor{% if c.blocked %} gap{% elif c.label in seats.taken %} taken{% endif %}"
+      hx-post="/manage/{{ ev.id }}/seating/toggle" hx-vals='{"seat": "{{ c.label }}"}' hx-target="#seat-editor" hx-swap="outerHTML"
+      aria-label="{{ c.label }}{% if c.blocked %}, gap{% elif c.label in seats.taken %}, taken by {{ seats.names.get(c.label, 'an attendee') }}{% endif %}"
+      title="{{ seats.names.get(c.label, '') }}">{{ c.label }}</button>
+  {% endfor %}{% endfor %}
+  </div></div>
+</div>

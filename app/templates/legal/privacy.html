@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy | {{ settings.site_name }}{% endblock %}
+{% block description %}What {{ settings.site_name }} collects, who can see it, how long it's kept, and how to delete it.{% endblock %}
+{% block content %}
+{% set S = settings.site_name %}{% set O = settings.operator_name %}
+{% set CONTACT = settings.contact_email or "[set CONTACT_EMAIL]" %}
+{% set AGE = settings.min_age %}
+<article class="legal">
+<h1>Privacy Policy</h1>
+<p class="meta">Last updated {{ settings.legal_updated }}</p>
+
+<div class="summary">
+  <p><b>The short version.</b></p>
+  <ul>
+    <li>We collect what it takes to run events: your email, the name and gamer tag you choose, and your registrations.</li>
+    <li>Organizers of events you register for see your email and registration details. The public sees your name or gamer tag only if the organizer lists attendees.</li>
+    <li>Card details go to Stripe, never to us.</li>
+    <li>No ads, no analytics, no tracking cookies, no third-party scripts. We don't sell your information.</li>
+    <li>You can delete your account yourself, any time.</li>
+  </ul>
+</div>
+
+<ol class="toc">
+  <li><a href="#who">Who we are</a></li>
+  <li><a href="#collect">What we collect</a></li>
+  <li><a href="#use">How we use it</a></li>
+  <li><a href="#see">Who can see it</a></li>
+  <li><a href="#cookies">Cookies</a></li>
+  <li><a href="#retention">How long we keep it</a></li>
+  <li><a href="#rights">Your choices and rights</a></li>
+  <li><a href="#children">Children</a></li>
+  <li><a href="#security">Security</a></li>
+  <li><a href="#location">Where your data is</a></li>
+  <li><a href="#changes">Changes</a></li>
+  <li><a href="#contact">Contact</a></li>
+</ol>
+
+<h2 id="who">1. Who we are</h2>
+<p>{{ O }} ("we", "us") runs {{ S }} at {{ settings.base_url }} and is responsible for the personal information described here.</p>
+<p>When you register for an event, the organizer receives some of your information (see <a href="#see">section 4</a>) and becomes responsible for how they use it. Our <a href="/terms#organizers">Terms of Service</a> only allow organizers to use it to run their event, but their own handling of it isn't covered by this policy.</p>
+
+<h2 id="collect">2. What we collect</h2>
+<h3>Information you give us</h3>
+<ul>
+  <li><b>Account:</b> your email address, and the name you choose to display.</li>
+  <li><b>Registrations:</b> which events you register for, the gamer tag you enter, your ticket type and price, your ticket code, your seat, your poll votes, your tournament signups, and any note you send an organizer, such as a refund request.</li>
+  <li><b>Events you host:</b> everything you put in a listing, including the venue name and street address (which may be your home), plus announcements, polls, tournaments and ticket types.</li>
+</ul>
+<h3>Payment information</h3>
+<ul>
+  <li><b>If you buy a ticket,</b> you enter your card details directly into Stripe Checkout. We don't receive or store card numbers. Stripe tells us whether a payment succeeded and gives us a payment reference, which we store with your registration along with the amount.</li>
+  <li><b>If you sell tickets,</b> Stripe collects your identity, business and bank details during setup. We store only your Stripe account ID and whether your account can accept payments. Stripe handles that information under the <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe Privacy Policy</a>.</li>
+</ul>
+<h3>Information collected automatically</h3>
+<ul>
+  <li><b>Cookies:</b> two essential cookies, described in <a href="#cookies">section 5</a>.</li>
+  <li><b>IP address:</b> used briefly in memory to limit repeated sign-in requests, and recorded in our web server and reverse proxy logs together with the page requested, the time and your browser type.</li>
+  <li><b>Emails we send you:</b> we keep a copy of each email (address, subject, text and whether it was delivered) so failed messages can be retried and investigated.</li>
+</ul>
+<p>We don't use analytics, advertising or social media trackers, and every page loads only from our own server: fonts and scripts included. We don't buy information about you from anyone else.</p>
+
+<h2 id="use">3. How we use it</h2>
+<ul>
+  <li><b>To run {{ S }}:</b> sign you in, show event pages, take registrations and payments, hold and assign seats, count votes and signups, and keep events from overselling.</li>
+  <li><b>To send you emails you need:</b> sign-in links, registration confirmations, reminders a week and a day before events, cancellations and refund notices, and announcements from organizers of events you're registered for. We don't send marketing email.</li>
+  <li><b>To keep it safe:</b> prevent abuse, fraud and spam, enforce our Terms, and investigate problems.</li>
+  <li><b>To meet legal obligations:</b> for example keeping payment records and responding to lawful requests.</li>
+</ul>
+<p>We don't sell your personal information, share it for targeted advertising, or use it to build advertising profiles.</p>
+<p><b>If you're in the European Economic Area, the UK or Switzerland,</b> our legal bases are: performing our contract with you (running your account and registrations), our legitimate interests (security, preventing abuse and improving {{ S }}), and complying with legal obligations (payment records).</p>
+
+<h2 id="see">4. Who can see it</h2>
+<table>
+  <thead><tr><th>Who</th><th>What they see</th></tr></thead>
+  <tbody>
+    <tr><td>Anyone, including people who aren't signed in</td><td>Event listings, including the organizer's display name. For events where the organizer shows attendees: attendees' gamer tags or display names, who is sitting in each seat, and who signed up for each tournament. Poll totals, never who voted for what. Your email address is never shown publicly.</td></tr>
+    <tr><td>Other confirmed attendees of the same event</td><td>The same as above, plus the venue's street address and who signed up for each tournament, even when the organizer doesn't list attendees publicly.</td></tr>
+    <tr><td>The organizer of an event you register for</td><td>Your email address, display name, gamer tag, ticket type, amount paid, ticket code, seat, tournament signups, and any note you send them. They can download this as a spreadsheet.</td></tr>
+    <tr><td>Our service providers</td><td>Only what they need to provide their service to us: Stripe (payments), our email delivery provider (your address and the email's content), and our hosting provider (stored data, under our control).</td></tr>
+    <tr><td>Authorities or others, when required</td><td>Information we're legally required to disclose, or that we reasonably need to share to protect someone's safety, prevent fraud, or enforce our Terms.</td></tr>
+    <tr><td>A successor</td><td>If {{ S }} is transferred to another operator, your information moves with it under this policy, and we'll tell you before that happens.</td></tr>
+  </tbody>
+</table>
+<p>Organizers can choose not to show attendees at all. If you don't want your name on a public list, use a gamer tag you're comfortable sharing, or ask the organizer.</p>
+
+<h2 id="cookies">5. Cookies</h2>
+<p>We use two cookies. Both are strictly necessary for the site to work and neither tracks you across other sites, so we don't ask for cookie consent.</p>
+<table>
+  <thead><tr><th>Name</th><th>Purpose</th><th>Lasts</th></tr></thead>
+  <tbody>
+    <tr><td><code>lanyard_session</code></td><td>Keeps you signed in. It holds your account number in signed form.</td><td>30 days</td></tr>
+    <tr><td><code>lanyard_anon</code></td><td>Before you sign in, a random value that protects forms against cross-site forgery.</td><td>7 days</td></tr>
+  </tbody>
+</table>
+<p>Stripe sets its own cookies on its checkout pages to process payments and prevent fraud. Those are covered by Stripe's policies.</p>
+
+<h2 id="retention">6. How long we keep it</h2>
+<table>
+  <thead><tr><th>Information</th><th>Kept</th></tr></thead>
+  <tbody>
+    <tr><td>Your account (email, display name)</td><td>Until you delete your account</td></tr>
+    <tr><td>Registrations, gamer tags, seats, votes and signups</td><td>Until you delete your account. Registration records are then kept without anything identifying you (see below).</td></tr>
+    <tr><td>Events you host</td><td>Until you delete them or your account. Past events stay listed, without your name, after you delete your account.</td></tr>
+    <tr><td>Sign-in links</td><td>Expire after 15 minutes; records deleted after 30 days</td></tr>
+    <tr><td>Copies of emails we sent</td><td>90 days</td></tr>
+    <tr><td>Server and proxy logs, including IP addresses</td><td>Up to 30 days</td></tr>
+    <tr><td>IP addresses for sign-in rate limiting</td><td>Memory only, cleared within 15 minutes</td></tr>
+    <tr><td>Backups</td><td>Up to 30 days, after which deleted data is gone from backups too</td></tr>
+  </tbody>
+</table>
+<p><b>When you delete your account,</b> we remove your email address, name, gamer tags, seats, poll votes, tournament signups, pending emails and sign-in records, and disconnect any Stripe account. We keep anonymous registration records (event, date, ticket type, amount and ticket code) because organizers' attendance numbers and payment and tax records depend on them. Stripe keeps its own payment records as the law requires. Organizers who downloaded an attendee list before you deleted your account still have that copy.</p>
+
+<h2 id="rights">7. Your choices and rights</h2>
+<ul>
+  <li><b>See and change your information:</b> your tickets and name are on <a href="/me">your account page</a>. To change your email address or get a copy of everything we hold about you, email {{ CONTACT }}.</li>
+  <li><b>Delete your account:</b> do it yourself from <a href="/me/delete">your account page</a>, or ask us.</li>
+  <li><b>Emails:</b> everything we send relates to your account or an event you registered for. To stop an event's emails, cancel your registration; to stop all of them, delete your account.</li>
+  <li><b>Correct or object:</b> tell us if something is wrong, or if you object to how we use your information.</li>
+</ul>
+<p>Depending on where you live, including several US states, the EEA and the UK, you may have legal rights to access, correct, delete or move your personal information, to object to or restrict certain uses, and to withdraw consent. We give those rights to everyone, wherever you live. Email {{ CONTACT }}; we may need to confirm the request came from your email address. We'll respond within 30 days, won't charge you, and won't treat you differently for asking. If you're in the EEA or UK, you can also complain to your local data protection authority.</p>
+<p>For information an organizer holds about you, contact the organizer directly. If you can't reach them, tell us and we'll pass your request on.</p>
+
+<h2 id="children">8. Children</h2>
+<p>{{ S }} isn't intended for children under {{ AGE }}, and we don't knowingly collect personal information from them. People aged {{ AGE }} to 17 may use it only with a parent or guardian's permission. If you believe a child under {{ AGE }} has given us information, email {{ CONTACT }} and we'll delete it.</p>
+
+<h2 id="security">9. Security</h2>
+<p>The site is served only over HTTPS. Sign-in links are single-use and expire after 15 minutes, and we store them only in scrambled (hashed) form. Session cookies are signed so they can't be forged, and forms are protected against cross-site requests. We don't store passwords, because there aren't any. Access to the servers and database is limited to the people who run {{ S }}.</p>
+<p>No system is perfectly secure. If a breach affects your personal information, we'll notify you and the authorities as the law requires. Please report security issues to {{ CONTACT }}.</p>
+
+<h2 id="location">10. Where your data is</h2>
+<p>{{ S }} is run from, and stores data in, the United States. Stripe and our email provider may process data in other countries under their own safeguards. If you use {{ S }} from outside the United States, your information is transferred to and processed in the United States.</p>
+
+<h2 id="changes">11. Changes</h2>
+<p>We'll post any changes here with a new date. If a change materially affects how we use information we already have, we'll email account holders at least 14 days before it takes effect.</p>
+
+<h2 id="contact">12. Contact</h2>
+<p>{{ O }}<br>Email: {% if settings.contact_email %}<a href="mailto:{{ CONTACT }}">{{ CONTACT }}</a>{% else %}{{ CONTACT }}{% endif %}</p>
+</article>
+{% endblock %}

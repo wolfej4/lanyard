@@ -1,0 +1,52 @@
+{# Event fields, shared by create and edit. `f` is a dict of raw form values or None (then read from ev). #}
+{% macro val(name, default='') -%}
+{%- if f is not none -%}{{ f.get(name, default) }}{%- elif ev is not none -%}{{ ev[name] if ev[name] is not none else default }}{%- else -%}{{ default }}{%- endif -%}
+{%- endmacro %}
+{% macro dtval(name) -%}
+{%- if f is not none -%}{{ f.get(name, '') }}{%- elif ev is not none -%}{{ input_value(ev[name], ev.timezone) }}{%- endif -%}
+{%- endmacro %}
+{% set tzv = val('timezone', 'America/Chicago') %}
+<fieldset>
+  <legend>The basics</legend>
+  <div class="field"><label for="title">Event name</label><input id="title" name="title" type="text" maxlength="120" required value="{{ val('title') }}" placeholder="Panhandle Frag Night 12"></div>
+  <div class="field"><label for="tagline">One-line pitch <span class="hint">Shows in search results.</span></label><input id="tagline" name="tagline" type="text" maxlength="160" value="{{ val('tagline') }}" placeholder="BYOC, 24 seats, CS2 and Halo tournaments, pizza at 8"></div>
+  <div class="grid3">
+    <div class="field"><label for="start_at">Starts</label><input id="start_at" name="start_at" type="datetime-local" required value="{{ dtval('start_at') }}"></div>
+    <div class="field"><label for="end_at">Ends</label><input id="end_at" name="end_at" type="datetime-local" required value="{{ dtval('end_at') }}"></div>
+    <div class="field"><label for="timezone">Time zone</label><select id="timezone" name="timezone">
+      {% for tz in timezones %}<option value="{{ tz }}" {% if tz == tzv %}selected{% endif %}>{{ tz.replace('_', ' ') }}</option>{% endfor %}
+      {% if tzv not in timezones %}<option value="{{ tzv }}" selected>{{ tzv }}</option>{% endif %}
+    </select></div>
+  </div>
+  <div class="field" style="max-width:220px"><label for="capacity">How many people fit</label><input id="capacity" name="capacity" type="number" min="2" max="{{ settings.max_capacity }}" required value="{{ val('capacity', 16) }}">
+    {% if settings.free_capacity_limit %}<span class="hint">Over {{ settings.free_capacity_limit }} needs a quick review before publishing.</span>{% endif %}</div>
+</fieldset>
+<fieldset>
+  <legend>Where</legend>
+  <div class="grid2">
+    <div class="field"><label for="venue_name">Venue</label><input id="venue_name" name="venue_name" type="text" maxlength="120" value="{{ val('venue_name') }}" placeholder="Community center, Jacob's garage"></div>
+    <div class="field"><label for="address">Street address <span class="hint">Only registered attendees see this.</span></label><input id="address" name="address" type="text" maxlength="200" value="{{ val('address') }}"></div>
+  </div>
+  <div class="grid3">
+    <div class="field"><label for="city">City</label><input id="city" name="city" type="text" maxlength="80" value="{{ val('city') }}"></div>
+    <div class="field"><label for="region">State or region</label><input id="region" name="region" type="text" maxlength="80" value="{{ val('region') }}" placeholder="FL"></div>
+    <div class="field"><label for="country">Country code</label><input id="country" name="country" type="text" maxlength="2" value="{{ val('country', 'US') }}"></div>
+  </div>
+</fieldset>
+<fieldset>
+  <legend>Details</legend>
+  <div class="field"><label for="description">About this LAN <span class="hint">Plain text. Leave a blank line between paragraphs; links become clickable.</span></label><textarea id="description" name="description" maxlength="10000">{{ val('description') }}</textarea></div>
+  <div class="field"><label for="bring_notes">What to bring <span class="hint">Included in confirmation and reminder emails.</span></label><textarea id="bring_notes" name="bring_notes" maxlength="3000" style="min-height:90px" placeholder="Your PC, monitor, headset, a power strip and a 25 ft ethernet cable.">{{ val('bring_notes') }}</textarea></div>
+</fieldset>
+<fieldset>
+  <legend>Registration</legend>
+  <div class="grid2">
+    <div class="field"><label for="registration_opens_at">Opens <span class="hint">Blank means as soon as you publish.</span></label><input id="registration_opens_at" name="registration_opens_at" type="datetime-local" value="{{ dtval('registration_opens_at') }}"></div>
+    <div class="field"><label for="registration_closes_at">Closes <span class="hint">Blank means when the event starts.</span></label><input id="registration_closes_at" name="registration_closes_at" type="datetime-local" value="{{ dtval('registration_closes_at') }}"></div>
+  </div>
+  {% set vis = val('visibility', 'public') %}
+  <div class="field"><label class="check"><input type="radio" name="visibility" value="public" {% if vis != 'unlisted' %}checked{% endif %}><span>Public<span class="hint">Listed in search.</span></span></label>
+  <label class="check"><input type="radio" name="visibility" value="unlisted" {% if vis == 'unlisted' %}checked{% endif %}><span>Unlisted<span class="hint">Only people with the link can find it. Good for friends-only nights.</span></span></label></div>
+  {% set sa = (f.get('show_attendees') == 'on') if f is not none and f.get('title') is not none else (ev.show_attendees if ev is not none else True) %}
+  <label class="check"><input type="checkbox" name="show_attendees" {% if sa %}checked{% endif %}><span>Show who's going on the event page</span></label>
+</fieldset>

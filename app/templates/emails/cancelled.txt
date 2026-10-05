@@ -1,0 +1,7 @@
+{{ event.title }} has been cancelled
+
+The organizer cancelled {{ event.title }}, which was set for {{ when }}.
+{% if refunded %}
+
+Your payment of {{ price }} is being refunded to your original payment method. Refunds usually arrive within 5 to 10 business days.
+{% endif %}

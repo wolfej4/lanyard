@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field, notices with context %}
+{% block title %}Payments | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+<p class="meta"><a href="/manage">Your events</a></p>
+<h1>Payments</h1>
+{{ notices(None, error) }}
+{% if settings.dev_fake_payments and not settings.stripe_secret_key %}
+  <div class="notice warn">This server is in development mode: paid tickets use a simulated checkout and no money moves.</div>
+{% elif not settings.stripe_secret_key %}
+  <p class="lede">Paid tickets aren't turned on for this site yet. Free events work as normal.</p>
+{% elif user.stripe_charges_enabled %}
+  <p class="lede">You're set up. Ticket money goes to your Stripe account{% if settings.platform_fee_percent %}, minus a {{ '%g'|format(settings.platform_fee_percent) }}% platform fee{% endif %}, and Stripe pays it out to your bank on its usual schedule.</p>
+  <form method="post" action="/manage/payments/dashboard">{{ csrf_field() }}<button class="ghost" type="submit">Open your Stripe dashboard</button></form>
+{% else %}
+  <p class="lede">To sell paid tickets, connect a Stripe account. Stripe asks for your name, a bank account for payouts, and the last four of your SSN or an EIN. It takes about five minutes.</p>
+  <p class="prose">Ticket money goes straight to your account{% if settings.platform_fee_percent %} minus a {{ '%g'|format(settings.platform_fee_percent) }}% platform fee{% endif %}. Stripe's own card processing fee applies. Refunds you issue come back out of your balance.</p>
+  {% if user.stripe_account_id %}<div class="notice warn">You started setup but Stripe still needs more information.</div>{% endif %}
+  <form method="post" action="/manage/payments/connect">{{ csrf_field() }}<button type="submit">{% if user.stripe_account_id %}Continue Stripe setup{% else %}Connect Stripe{% endif %}</button></form>
+  <p class="meta small" style="margin-top:14px">By connecting, you agree to the <a href="https://stripe.com/legal/connect-account" target="_blank" rel="noopener">Stripe Connected Account Agreement</a> and to the organizer payment terms in our <a href="/terms#payments">Terms of Service</a>.</p>
+{% endif %}
+</div>
+{% endblock %}

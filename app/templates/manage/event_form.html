@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field with context %}
+{% block title %}New event | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div style="max-width:760px">
+<h1>New event</h1>
+<p class="lede">This saves as a draft. Nobody sees it until you publish.</p>
+{% if errors %}<div class="notice error" role="alert"><ul class="errors">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+<form method="post" action="/manage/new">
+  {{ csrf_field() }}
+  {% include "manage/fields.html" %}
+  <button type="submit" style="margin-top:12px">Create draft</button>
+</form>
+</div>
+{% endblock %}

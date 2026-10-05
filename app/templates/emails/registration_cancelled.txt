@@ -1,0 +1,7 @@
+Your registration for {{ event.title }} was cancelled
+
+Your registration for {{ event.title }} (ticket {{ reg.code }}) has been cancelled.
+{% if refunded %}
+
+Your payment of {{ price }} is being refunded to your original payment method. Refunds usually arrive within 5 to 10 business days.
+{% endif %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field with context %}
+{% block title %}Welcome | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <h1>What should we call you?</h1>
+  <p class="lede">Organizers and other attendees see this name. You can set a different gamer tag for each event.</p>
+  <form method="post" action="/me/name">
+    {{ csrf_field() }}<input type="hidden" name="next" value="{{ next }}">
+    <div class="field"><label for="display_name">Name</label><input id="display_name" name="display_name" type="text" maxlength="60" required autofocus></div>
+    <div class="actions"><button type="submit">Continue</button><a href="{{ next }}">Skip for now</a></div>
+  </form>
+</div>
+{% endblock %}

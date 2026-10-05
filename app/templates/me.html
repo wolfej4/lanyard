@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field, stub with context %}
+{% block title %}My tickets | {{ settings.site_name }}<h2>Your data</h2>
+<p class="prose">See what we store and why in the <a href="/privacy">Privacy Policy</a>. You can <a href="/me/delete">delete your account</a> at any time.</p>
+{% endblock %}
+{% block content %}
+<h1>My tickets</h1>
+{% if upcoming %}
+  <div style="display:grid;gap:18px;margin-top:10px">
+  {% for reg, ev, t in upcoming %}
+    <a href="/t/{{ reg.code }}" style="text-decoration:none">{{ stub(reg, ev, t, user) }}</a>
+  {% endfor %}
+  </div>
+{% else %}
+  <p class="lede">No upcoming LANs yet. <a href="/events">Find one</a>.</p>
+{% endif %}
+
+{% if hosting %}
+<h2>You're hosting</h2>
+<ul class="feed">{% for ev in hosting %}<li><a href="/manage/{{ ev.id }}">{{ ev.title }}</a> <span class="meta">{{ fmt_dt(ev.start_at, ev.timezone) }}</span> <span class="status {{ ev.status }}">{{ ev.status|capitalize }}</span></li>{% endfor %}</ul>
+{% endif %}
+
+{% if past %}
+<h2>Past</h2>
+<ul class="feed">{% for reg, ev, t in past %}<li><a href="/e/{{ ev.slug }}">{{ ev.title }}</a> <span class="meta">{{ fmt_dt(ev.start_at, ev.timezone, False) }}</span></li>{% endfor %}</ul>
+{% endif %}
+
+<h2>Account</h2>
+<div class="split">
+  <form method="post" action="/me/name">
+    {{ csrf_field() }}<input type="hidden" name="next" value="/me">
+    <div class="field"><label for="display_name">Name <span class="hint">Signed in as {{ user.email }}</span></label>
+      <input id="display_name" name="display_name" type="text" maxlength="60" value="{{ user.display_name }}"></div>
+    <button type="submit">Save name</button>
+  </form>
+  <div>
+    <form method="post" action="/logout" style="margin-bottom:18px">{{ csrf_field() }}<button type="submit">Sign out</button></form>
+    <form method="post" action="/me/signout-everywhere">
+      {{ csrf_field() }}
+      <p class="prose">Lost a device or used a shared computer? This signs you out on every browser.</p>
+      <button class="ghost" type="submit">Sign out everywhere</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

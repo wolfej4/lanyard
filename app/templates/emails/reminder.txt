@@ -1,0 +1,15 @@
+{{ event.title }} is {{ "tomorrow" if soon else "one week away" }}
+
+{{ event.title }} starts {{ when }}.
+
+Where: {{ event.venue_name }}{% if event.address %}, {{ event.address }}{% endif %}{% if event.city %}, {{ event.city }}{% endif %}
+
+{% if seat %}Your seat: {{ seat }}
+{% elif event.seating_enabled %}You haven't picked a seat yet: {{ base }}/t/{{ reg.code }}
+{% endif %}
+{% if event.bring_notes %}
+What to bring:
+{{ event.bring_notes }}
+
+{% endif %}
+Your ticket: {{ base }}/t/{{ reg.code }}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Your events | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="actions" style="justify-content:space-between">
+  <h1 style="margin:0">Your events</h1>
+  <div class="actions"><a class="btn ghost" href="/manage/payments">Payments{% if not user.stripe_charges_enabled %} (not set up){% endif %}</a><a class="btn" href="/manage/new">Create an event</a></div>
+</div>
+{% if not upcoming and not past %}
+  <div class="empty"><p class="lede">You haven't made any events yet. Start with a name, a date and how many people fit; you can add tickets, seating and the rest after.</p>
+  <a class="btn" href="/manage/new">Create your first event</a></div>
+{% endif %}
+{% if upcoming %}
+<div class="table-wrap" style="margin-top:24px"><table>
+  <thead><tr><th>Event</th><th>When</th><th>Registered</th><th>Status</th></tr></thead>
+  <tbody>{% for ev, n in upcoming %}
+    <tr><td><a href="/manage/{{ ev.id }}"><b>{{ ev.title }}</b></a></td><td>{{ fmt_dt(ev.start_at, ev.timezone) }}</td>
+    <td>{{ n }} / {{ ev.capacity }}</td><td><span class="status {{ ev.status }}">{{ ev.status|capitalize }}</span></td></tr>
+  {% endfor %}</tbody>
+</table></div>
+{% endif %}
+{% if past %}
+<h2>Past events</h2>
+<div class="table-wrap"><table><tbody>{% for ev, n in past %}
+  <tr class="dim"><td><a href="/manage/{{ ev.id }}">{{ ev.title }}</a></td><td>{{ fmt_dt(ev.start_at, ev.timezone, False) }}</td><td>{{ n }} attended</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}

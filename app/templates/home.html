@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+{% if request.query_params.get('msg') == 'deleted' %}<div class="notice" role="status">Your account has been deleted.</div>{% endif %}
+<section class="hero">
+  <h1>Find a LAN party near you, or throw your own.</h1>
+  <p class="lede">Grab a seat at someone's BYOC night, or set up yours in a few minutes: tickets, a seating chart, game polls and tournament signups, all in one place.</p>
+  {% include "partials/search.html" %}
+</section>
+<h2>Coming up</h2>
+<div id="results">{% include "partials/event_rows.html" %}</div>
+<section style="margin-top:56px" class="split">
+  <div>
+    <h2>Hosting a LAN?</h2>
+    <p class="prose">Make an event page, decide whether it's free or ticketed, and share the link. People sign in with just their email, so nobody has to make a password to get a seat.</p>
+    <a class="btn" href="/manage/new">Create an event</a>
+  </div>
+  <div>
+    <h2>What organizers get</h2>
+    <p class="prose">Paid tickets through Stripe that go straight to your account, a seat map people pick from, polls for pizza and games, tournament signups with automatic team shuffling, announcements emailed to everyone, and reminders a week and a day out.</p>
+    <p class="muted small">{% if settings.free_capacity_limit %}Events up to {{ settings.free_capacity_limit }} people go live right away; bigger ones get a quick review first.{% endif %}</p>
+  </div>
+</section>
+{% endblock %}

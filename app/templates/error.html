@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+<h1>{{ title }}</h1>
+<p class="lede">{{ detail or "That page doesn't exist, or you don't have access to it." }}</p>
+<a class="btn" href="/">Go to the homepage</a>
+</div>
+{% endblock %}

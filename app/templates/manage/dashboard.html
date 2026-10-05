@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field, notices with context %}
+{% block title %}{{ ev.title }}: manage | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<p class="meta"><a href="/manage">Your events</a></p>
+<div class="actions" style="justify-content:space-between;align-items:flex-start">
+  <div>
+    <h1 class="manage-title" style="margin-bottom:8px">{{ ev.title }}</h1>
+    <div class="actions"><span class="status {{ ev.status }}">{{ ev.status|capitalize }}</span>{% if ev.visibility == 'unlisted' %}<span class="meta">Unlisted</span>{% endif %}<span class="meta">{{ fmt_range(ev.start_at, ev.end_at, ev.timezone) }}</span></div>
+  </div>
+  <div class="actions">
+    <a class="btn ghost" href="/e/{{ ev.slug }}">View event page</a>
+    {% if ev.status == 'draft' %}
+      <form method="post" action="/manage/{{ ev.id }}/status">{{ csrf_field() }}<input type="hidden" name="action" value="publish"><button type="submit">Publish</button></form>
+    {% endif %}
+  </div>
+</div>
+<nav class="tabs" aria-label="Event sections">
+  {% for t in tabs %}<a href="/manage/{{ ev.id }}?tab={{ t }}" {% if t == tab %}aria-current="page"{% endif %}>{{ t|capitalize }}</a>{% endfor %}
+</nav>
+{{ notices(msg, error) }}
+
+{% if tab == 'overview' %}
+  {% if needs_approval and ev.status == 'draft' %}<div class="notice warn">This event is over {{ settings.free_capacity_limit }} people, so the site admin reviews it before it can go live. You can keep editing in the meantime.</div>{% endif %}
+  {% if has_paid and not owner.stripe_charges_enabled and not settings.dev_fake_payments %}<div class="notice warn">You have paid tickets but haven't finished <a href="/manage/payments">payment setup</a>. Paid tickets can't be sold until you do.</div>{% endif %}
+  <div class="stats">
+    <div class="stat"><b>{{ confirmed }}</b><span>registered of {{ capacity }}</span></div>
+    <div class="stat"><b>{{ money(revenue) if revenue else "$0" }}</b><span>ticket sales</span></div>
+    <div class="stat"><b>{{ tickets|selectattr('active')|list|length }}</b><span>ticket types on sale</span></div>
+  </div>
+  {% if confirmed > capacity %}<div class="notice warn">{{ confirmed - capacity }} more {{ 'person is' if confirmed - capacity == 1 else 'people are' }} registered than you have room for. This can happen when a payment completes after its hold ran out. Raise capacity or cancel a registration.</div>{% endif %}
+  <h2>Share</h2>
+  <p><code>{{ settings.base_url }}/e/{{ ev.slug }}</code></p>
+  <h2>Event status</h2>
+  <div class="actions">
+    {% if ev.status == 'published' %}
+      {% if not confirmed %}<form method="post" action="/manage/{{ ev.id }}/status">{{ csrf_field() }}<input type="hidden" name="action" value="unpublish"><button class="ghost" type="submit">Move back to draft</button></form>{% endif %}
+    {% endif %}
+    {% if ev.status != 'cancelled' %}
+      <form method="post" action="/manage/{{ ev.id }}/status">{{ csrf_field() }}<input type="hidden" name="action" value="cancel">
+        <button class="danger ghost" type="submit" data-confirm="Cancel {{ ev.title }}? Everyone registered is emailed and every paid ticket is refunded. This can't be undone.">Cancel event</button></form>
+    {% endif %}
+  </div>
+  <p class="muted small" style="margin-top:10px">Cancelling emails everyone and refunds every paid ticket.</p>
+
+{% elif tab == 'details' %}
+  {% if errors %}<div class="notice error" role="alert"><ul class="errors">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+  <form method="post" action="/manage/{{ ev.id }}/details" style="max-width:760px">
+    {{ csrf_field() }}
+    {% include "manage/fields.html" %}
+    <button type="submit" style="margin-top:12px">Save changes</button>
+  </form>
+
+{% elif tab == 'tickets' %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Ticket type</th><th>Price</th><th>Taken</th><th>Limit</th><th></th></tr></thead>
+    <tbody>{% for t in tickets %}
+      <tr class="{% if not t.active %}dim{% endif %}"><td><b>{{ t.name }}</b>{% if t.description %}<br><span class="small muted">{{ t.description }}</span>{% endif %}{% if not t.active %}<br><span class="small">Hidden</span>{% endif %}</td>
+        <td>{{ money(t.price_cents) }}</td><td>{{ sold.get(t.id, 0) }}</td><td>{{ t.quantity or "Event capacity" }}</td>
+        <td><div class="actions">
+          <details class="inline"><summary>Edit</summary>
+            <form method="post" action="/manage/{{ ev.id }}/tickets" class="box" style="min-width:280px">{{ csrf_field() }}
+              <input type="hidden" name="ticket_id" value="{{ t.id }}">
+              <div class="field"><label>Name</label><input name="name" type="text" value="{{ t.name }}" maxlength="60"></div>
+              <div class="field"><label>Price <span class="hint">{% if sold.get(t.id) %}Locked: people bought this.{% else %}0 for free.{% endif %}</span></label><input name="price" type="text" inputmode="decimal" value="{{ '%.2f'|format(t.price_cents / 100) }}" {% if sold.get(t.id) %}readonly{% endif %}></div>
+              <div class="field"><label>Limit <span class="hint">Blank for no limit beyond capacity.</span></label><input name="quantity" type="number" min="1" value="{{ t.quantity or '' }}"></div>
+              <div class="field"><label>Description</label><input name="description" type="text" maxlength="200" value="{{ t.description }}"></div>
+              <button type="submit" class="small">Save ticket type</button>
+            </form>
+          </details>
+          <form method="post" action="/manage/{{ ev.id }}/tickets/{{ t.id }}/toggle">{{ csrf_field() }}<button class="ghost small" type="submit">{{ "Hide" if t.active else "Put on sale" }}</button></form>
+        </div></td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <h2>Add a ticket type</h2>
+  {% if not owner.stripe_charges_enabled and not settings.dev_fake_payments %}<p class="muted small">Free tickets work now. For paid tickets, <a href="/manage/payments">set up payments</a> first.</p>{% endif %}
+  <form method="post" action="/manage/{{ ev.id }}/tickets" style="max-width:640px">
+    {{ csrf_field() }}
+    <div class="grid3">
+      <div class="field"><label for="tname">Name</label><input id="tname" name="name" type="text" maxlength="60" placeholder="BYOC seat" required></div>
+      <div class="field"><label for="tprice">Price ({{ settings.currency|upper }})</label><input id="tprice" name="price" type="text" inputmode="decimal" placeholder="0"></div>
+      <div class="field"><label for="tqty">Limit <span class="hint">Optional</span></label><input id="tqty" name="quantity" type="number" min="1"></div>
+    </div>
+    <div class="field"><label for="tdesc">Description <span class="hint">Optional</span></label><input id="tdesc" name="description" type="text" maxlength="200" placeholder="Includes pizza and a tournament entry"></div>
+    <button type="submit">Add ticket type</button>
+  </form>
+
+{% elif tab == 'seating' %}
+  <form method="post" action="/manage/{{ ev.id }}/seating" class="box" style="max-width:640px">
+    {{ csrf_field() }}
+    <label class="check"><input type="checkbox" name="enabled" {% if ev.seating_enabled %}checked{% endif %}><span>Let attendees pick seats<span class="hint">When on, capacity is the smaller of your event capacity and the number of seats.</span></span></label>
+    <div class="grid2" style="margin-top:14px">
+      <div class="field"><label for="rows">Rows</label><input id="rows" name="rows" type="number" min="1" max="40" value="{{ ev.seat_rows }}"></div>
+      <div class="field"><label for="cols">Seats per row</label><input id="cols" name="cols" type="number" min="1" max="40" value="{{ ev.seat_cols }}"></div>
+    </div>
+    <button type="submit">Save layout</button>
+  </form>
+  {% include "manage/partials/seat_editor.html" %}
+
+{% elif tab == 'attendees' %}
+  <div class="actions" style="justify-content:space-between;margin-bottom:16px">
+    <p style="margin:0"><b>{{ confirmed }}</b> registered of {{ capacity }}.</p>
+    <a class="btn ghost small" href="/manage/{{ ev.id }}/attendees.csv">Download CSV</a>
+  </div>
+  {% if regs %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Email</th><th>Ticket</th><th>Seat</th><th>Code</th><th>Status</th><th></th></tr></thead>
+    <tbody>{% for reg, u, t in regs %}
+      <tr class="{% if reg.status not in ('confirmed', 'pending') %}dim{% endif %}">
+        <td>{{ reg.gamer_tag or u.name }}{% if reg.gamer_tag and u.display_name %}<br><span class="small muted">{{ u.display_name }}</span>{% endif %}</td>
+        <td><a href="mailto:{{ u.email }}">{{ u.email }}</a></td>
+        <td>{{ t.name }}<br><span class="small muted">{{ money(reg.amount_cents) }}</span></td>
+        <td>{{ reg.seat or "" }}</td><td>{{ reg.code }}</td>
+        <td>{{ {'pending': 'Paying', 'confirmed': 'Confirmed', 'cancelled': 'Cancelled', 'refunded': 'Refunded'}[reg.status] }}</td>
+        <td>{% if reg.status in ('confirmed', 'pending') %}
+          <form method="post" action="/manage/{{ ev.id }}/attendees/{{ reg.id }}/cancel">{{ csrf_field() }}
+            {% if reg.status == 'confirmed' and reg.amount_cents %}<input type="hidden" name="refund" value="on">{% endif %}
+            <button class="danger ghost small" type="submit" data-confirm="Cancel {{ reg.code }}{% if reg.status == 'confirmed' and reg.amount_cents %} and refund {{ money(reg.amount_cents) }}{% endif %}?">{% if reg.status == 'confirmed' and reg.amount_cents %}Cancel and refund{% else %}Cancel{% endif %}</button>
+          </form>{% endif %}</td>
+      </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="muted">Nobody yet. Share your event link to get people in.</p>{% endif %}
+  <h2>Add someone</h2>
+  <p class="muted small">For staff, sponsors or friends who paid in cash. They get a free comp ticket and a confirmation email.</p>
+  <form method="post" action="/manage/{{ ev.id }}/attendees/add" style="max-width:640px">
+    {{ csrf_field() }}
+    <div class="grid2">
+      <div class="field"><label for="aemail">Email</label><input id="aemail" name="email" type="email" required></div>
+      <div class="field"><label for="atag">Gamer tag <span class="hint">Optional</span></label><input id="atag" name="gamer_tag" type="text" maxlength="40"></div>
+    </div>
+    <button type="submit">Add attendee</button>
+  </form>
+
+{% elif tab == 'announcements' %}
+  <form method="post" action="/manage/{{ ev.id }}/announcements" style="max-width:640px">
+    {{ csrf_field() }}
+    <div class="field"><label for="abody">Post an update</label><textarea id="abody" name="body" maxlength="4000" placeholder="Doors open at 5. Bring an extra ethernet cable, the switch is in the back corner." required></textarea></div>
+    <label class="check"><input type="checkbox" name="email" checked><span>Also email it to everyone registered</span></label>
+    <button type="submit" style="margin-top:12px">Post update</button>
+  </form>
+  {% if announcements %}
+  <h2>Posted</h2>
+  <ul class="feed">{% for a in announcements %}
+    <li><div class="meta">{{ fmt_dt(a.created_at, ev.timezone) }}{% if a.emailed %}, emailed{% endif %}</div><div class="prose">{{ render_text(a.body) }}</div>
+      <form method="post" action="/manage/{{ ev.id }}/announcements/{{ a.id }}/delete">{{ csrf_field() }}<button class="link small" type="submit">Remove from event page</button></form></li>
+  {% endfor %}</ul>
+  {% endif %}
+
+{% elif tab == 'polls' %}
+  <form method="post" action="/manage/{{ ev.id }}/polls" style="max-width:640px">
+    {{ csrf_field() }}
+    <div class="field"><label for="pq">Question</label><input id="pq" name="question" type="text" maxlength="200" placeholder="What pizza are we ordering?" required></div>
+    <div class="field"><label for="po">Options <span class="hint">One per line, up to 12.</span></label><textarea id="po" name="options" style="min-height:110px" placeholder="Pepperoni&#10;Supreme&#10;Plain cheese" required></textarea></div>
+    <button type="submit">Start poll</button>
+  </form>
+  {% for p in polls %}
+    <div class="box" style="margin-top:22px;max-width:640px">
+      {% set attending = False %}{% include "partials/poll.html" %}
+      <div class="actions" style="margin-top:10px">
+        <form method="post" action="/manage/{{ ev.id }}/polls/{{ p.poll.id }}/toggle">{{ csrf_field() }}<button class="ghost small" type="submit">{{ "Reopen" if p.poll.closed else "Close poll" }}</button></form>
+        <form method="post" action="/manage/{{ ev.id }}/polls/{{ p.poll.id }}/delete">{{ csrf_field() }}<button class="danger ghost small" type="submit" data-confirm="Delete this poll and its votes?">Delete</button></form>
+      </div>
+    </div>
+  {% endfor %}
+
+{% elif tab == 'tournaments' %}
+  <form method="post" action="/manage/{{ ev.id }}/tournaments" class="box" style="max-width:760px">
+    {{ csrf_field() }}
+    <h3>Add a tournament</h3>
+    <div class="grid2">
+      <div class="field"><label for="tg">Game</label><input id="tg" name="game" type="text" maxlength="80" placeholder="Counter-Strike 2" required></div>
+      <div class="field"><label for="tf">Format <span class="hint">Optional</span></label><input id="tf" name="format" type="text" maxlength="80" placeholder="Single elimination, best of 3"></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label for="ts">Team size <span class="hint">1 for solo</span></label><input id="ts" name="team_size" type="number" min="1" max="16" value="1"></div>
+      <div class="field"><label for="tm">Max players <span class="hint">Optional</span></label><input id="tm" name="max_entrants" type="number" min="2"></div>
+      <div class="field"><label for="tst">Starts <span class="hint">Optional</span></label><input id="tst" name="starts_at" type="datetime-local"></div>
+    </div>
+    <div class="field"><label for="tb">Bracket link <span class="hint">Optional. Challonge, start.gg, or wherever you run the bracket.</span></label><input id="tb" name="bracket_url" type="url" maxlength="300" placeholder="https://challonge.com/..."></div>
+    <button type="submit">Add tournament</button>
+  </form>
+  {% for tv in tournaments %}{% set t = tv.t %}
+    <div class="box" style="max-width:760px">
+      {% set attending = False %}{% set is_owner = True %}{% include "partials/tournament.html" %}
+      <div class="actions" style="margin-top:12px">
+        <form method="post" action="/manage/{{ ev.id }}/tournaments/{{ t.id }}/toggle">{{ csrf_field() }}<button class="ghost small" type="submit">{{ "Lock signups" if t.signups_open else "Reopen signups" }}</button></form>
+        {% if t.team_size > 1 %}<form method="post" action="/manage/{{ ev.id }}/tournaments/{{ t.id }}/teams">{{ csrf_field() }}<button class="small" type="submit" {% if not tv.people %}disabled{% endif %} {% if tv.teams %}data-confirm="Reshuffle everyone into new teams?"{% endif %}>{{ "Reshuffle teams" if tv.teams else "Make teams" }}</button></form>{% endif %}
+        <form method="post" action="/manage/{{ ev.id }}/tournaments/{{ t.id }}/delete">{{ csrf_field() }}<button class="danger ghost small" type="submit" data-confirm="Delete {{ t.game }} and its signups?">Delete</button></form>
+      </div>
+      <form method="post" action="/manage/{{ ev.id }}/tournaments/{{ t.id }}/bracket" class="actions" style="margin-top:12px">
+        {{ csrf_field() }}<label class="sr" for="b{{ t.id }}">Bracket link</label>
+        <input id="b{{ t.id }}" name="bracket_url" type="url" value="{{ t.bracket_url }}" placeholder="Bracket link" style="flex:1;min-width:200px">
+        <button class="ghost small" type="submit">Save link</button>
+      </form>
+    </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

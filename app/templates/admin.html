@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field, notices with context %}
+{% block title %}Admin | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<h1>Site admin</h1>
+{{ notices(msg) }}
+<div class="stats">
+  <div class="stat"><b>{{ stats.users }}</b><span>accounts</span></div>
+  <div class="stat"><b>{{ stats.live }}</b><span>live events</span></div>
+  <div class="stat"><b>{{ stats.queued }}</b><span>emails waiting</span></div>
+</div>
+
+<h2>Waiting for review</h2>
+{% if pending %}
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Organizer</th><th>Capacity</th><th></th></tr></thead><tbody>
+{% for ev in pending %}<tr><td><a href="/e/{{ ev.slug }}">{{ ev.title }}</a></td><td>{{ owners[ev.owner_id].email }}</td><td>{{ ev.capacity }}</td>
+<td><form method="post" action="/admin/events/{{ ev.id }}/approve">{{ csrf_field() }}<button class="small" type="submit">Approve</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="muted">Nothing to review.</p>{% endif %}
+
+<h2>Recent events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Organizer</th><th>Starts</th><th>Status</th><th></th></tr></thead><tbody>
+{% for ev in recent %}<tr><td><a href="/e/{{ ev.slug }}">{{ ev.title }}</a></td><td>{{ owners[ev.owner_id].email }}</td><td>{{ fmt_dt(ev.start_at, ev.timezone, False) }}</td>
+<td><span class="status {{ ev.status }}">{{ ev.status|capitalize }}</span></td>
+<td>{% if ev.status == 'published' %}<form method="post" action="/admin/events/{{ ev.id }}/takedown">{{ csrf_field() }}<button class="danger ghost small" type="submit" data-confirm="Take down {{ ev.title }}? It becomes a hidden draft.">Take down</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+
+<h2>Find an account</h2>
+<form method="get" action="/admin" class="search" style="margin-top:0"><input type="search" name="q" value="{{ q }}" placeholder="Email address"><button type="submit">Search</button></form>
+{% if users %}<div class="table-wrap" style="margin-top:14px"><table><tbody>
+{% for u in users %}<tr><td>{{ u.email }}</td><td>{{ u.name }}</td><td>{% if u.banned %}Banned{% endif %}</td>
+<td>{% if u.id != user.id %}<form method="post" action="/admin/users/{{ u.id }}/ban">{{ csrf_field() }}<button class="{{ 'ghost' if u.banned else 'danger ghost' }} small" type="submit" {% if not u.banned %}data-confirm="Ban {{ u.email }}? They're signed out and their events are hidden."{% endif %}>{{ "Unban" if u.banned else "Ban" }}</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{% elif q %}<p class="muted">No accounts match.</p>{% endif %}
+
+{% if failed %}
+<h2>Email problems</h2>
+<div class="table-wrap"><table><thead><tr><th>To</th><th>Subject</th><th>Tries</th><th>Last error</th></tr></thead><tbody>
+{% for m in failed %}<tr><td>{{ m.to_addr }}</td><td>{{ m.subject }}</td><td>{{ m.attempts }}</td><td class="small">{{ m.last_error }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field with context %}
+{% block title %}Delete your account | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <p class="meta"><a href="/me">My tickets</a></p>
+  <h1>Delete your account</h1>
+  {% if blockers %}
+    <p class="lede">A couple of things need sorting out first.</p>
+    <div class="notice warn"><ul class="errors">{% for b in blockers %}<li>{{ b }}</li>{% endfor %}</ul></div>
+    <a class="btn ghost" href="/me">Back to my tickets</a>
+  {% else %}
+    <p class="lede">This removes your email address, name, gamer tags, seats, poll votes and tournament signups, and signs you out everywhere. It can't be undone.</p>
+    <p class="prose">We keep anonymous records of past registrations (date, event, ticket type, amount paid, ticket code) because organizers' attendance counts and payment records depend on them. Stripe keeps its own records of any payments under its privacy policy. Your unpublished draft events are cancelled; past events you hosted stay listed without your name. The <a href="/privacy#retention">Privacy Policy</a> has the details.</p>
+    {% if error %}<div class="notice error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/me/delete">
+      {{ csrf_field() }}
+      <div class="field"><label for="confirm">Type <b>{{ user.email }}</b> to confirm</label><input id="confirm" name="confirm" type="email" required autocomplete="off"></div>
+      <button class="danger" type="submit">Delete my account</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

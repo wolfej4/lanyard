@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Find a LAN party | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<h1>Find a LAN party</h1>
+{% include "partials/search.html" %}
+<div id="results" style="margin-top:22px">{% include "partials/event_rows.html" %}</div>
+{% endblock %}

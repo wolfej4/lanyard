@@ -1,0 +1,30 @@
+{% if rows %}
+<ul class="listing">
+{% for r in rows %}{% set ev = r.ev %}{% set loc = utc_to_local(ev.start_at, ev.timezone) %}
+  <li><a class="row" href="/e/{{ ev.slug }}">
+    <div class="date" aria-label="{{ loc.strftime('%B %-d') }}"><div class="mo">{{ loc.strftime('%b') }}</div><div class="day">{{ loc.day }}</div></div>
+    <div>
+      <div class="row-title">{{ ev.title }}</div>
+      <div class="meta">{{ loc.strftime('%a') }} {{ loc.strftime('%-I:%M %p').replace(':00 ', ' ') }}{% if ev.city %}, {{ ev.city }}{% if ev.region %}, {{ ev.region }}{% endif %}{% endif %}{% if ev.venue_name %} at {{ ev.venue_name }}{% endif %}</div>
+      {% if ev.tagline %}<div class="muted small">{{ ev.tagline }}</div>{% endif %}
+    </div>
+    <div class="cap">
+      <div class="going">{% if r.going >= r.capacity %}Full, {{ r.capacity }} going{% else %}{{ r.going }} of {{ r.capacity }} going{% endif %}</div>
+      <div class="meter{% if r.going >= r.capacity %} full{% endif %}"><i style="width: {{ [100, (100 * r.going / r.capacity)|round]|min if r.capacity else 0 }}%"></i></div>
+    </div>
+  </a></li>
+{% endfor %}
+</ul>
+{% if more or page %}
+<p class="actions" style="margin-top:18px">
+  {% if page %}<a class="btn ghost small" href="/events?q={{ q|urlencode }}&region={{ region|urlencode }}&page={{ page - 1 }}">Earlier results</a>{% endif %}
+  {% if more %}<a class="btn ghost small" href="/events?q={{ q|urlencode }}&region={{ region|urlencode }}&page={{ page + 1 }}">More events</a>{% endif %}
+</p>
+{% endif %}
+{% else %}
+<div class="empty">
+  {% if q or region %}<p>No upcoming LANs match that. Try a city name or clear the filter.</p>
+  {% else %}<p>No upcoming LANs are listed yet.</p>{% endif %}
+  <a class="btn" href="/manage/new">Host one</a>
+</div>
+{% endif %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field, notices, stub with context %}
+{% block title %}{{ ev.title }} | {{ settings.site_name }}{% endblock %}
+{% block description %}{{ ev.tagline or ev.title }}, {{ fmt_dt(ev.start_at, ev.timezone) }}{% if ev.city %} in {{ ev.city }}{% endif %}.{% endblock %}
+{% block head %}{% if ev.visibility == 'unlisted' or ev.status != 'published' %}<meta name="robots" content="noindex">{% endif %}
+<meta property="og:title" content="{{ ev.title }}"><meta property="og:description" content="{{ ev.tagline }}">{% endblock %}
+{% block content %}
+{% if ev.status == 'draft' %}<div class="notice warn">This is a draft. Only you can see it. <a href="/manage/{{ ev.id }}">Publish it from the dashboard.</a></div>{% endif %}
+{% if ev.status == 'cancelled' %}<div class="notice error">The organizer cancelled this event. Paid tickets were refunded.</div>{% endif %}
+{% if checkout_cancelled %}<div class="notice warn">Checkout was cancelled. Your spot is held until the timer on your ticket runs out, so you can still finish paying.</div>{% endif %}
+{{ notices(None, error) }}
+
+<header class="event-head">
+  <h1>{{ ev.title }}</h1>
+  {% if ev.tagline %}<p class="lede">{{ ev.tagline }}</p>{% endif %}
+  <div class="facts">
+    <div><b>When</b>{{ fmt_range(ev.start_at, ev.end_at, ev.timezone) }}</div>
+    {% if ev.venue_name or ev.city %}<div><b>Where</b>{{ ev.venue_name }}{% if ev.venue_name and ev.city %}<br>{% endif %}{{ ev.city }}{% if ev.region %}, {{ ev.region }}{% endif %}</div>{% endif %}
+    <div><b>Spots</b>{% if left %}{{ left }} of {{ capacity }} left{% else %}Full ({{ capacity }}){% endif %}</div>
+    <div><b>Host</b>{{ organizer.name }}</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div>
+    {% if ev.description %}<section><h2>About</h2><div class="prose">{{ render_text(ev.description) }}</div></section>{% endif %}
+    {% if ev.bring_notes %}<section><h2>What to bring</h2><div class="prose">{{ render_text(ev.bring_notes) }}</div></section>{% endif %}
+    {% if attending and ev.address %}<section><h2>Address</h2><p>{{ ev.address }}{% if ev.city %}, {{ ev.city }}{% endif %}{% if ev.region %}, {{ ev.region }}{% endif %}</p></section>{% endif %}
+
+    {% if announcements %}
+    <section><h2>Announcements</h2>
+      <ul class="feed">{% for a in announcements %}
+        <li><div class="meta">{{ fmt_dt(a.created_at, ev.timezone) }}</div><div class="prose">{{ render_text(a.body) }}</div></li>
+      {% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    {% if polls %}
+    <section><h2>Polls</h2>
+      {% if not attending and not is_owner %}<p class="muted small">Register to vote.</p>{% endif %}
+      {% for p in polls %}{% include "partials/poll.html" %}{% endfor %}
+    </section>
+    {% endif %}
+
+    {% if tournaments %}
+    <section><h2>Tournaments</h2>
+      {% if not attending and not is_owner %}<p class="muted small">Register to sign up for tournaments.</p>{% endif %}
+      {% for tv in tournaments %}{% include "partials/tournament.html" %}{% endfor %}
+    </section>
+    {% endif %}
+
+    {% if seats %}
+    <section><h2>Seating</h2>
+      {% if attending %}<p class="small"><a href="/t/{{ my_reg.code }}">Pick or change your seat on your ticket.</a></p>{% endif %}
+      {% set can_pick = False %}{% include "partials/seatmap.html" %}
+    </section>
+    {% endif %}
+
+    {% if ev.show_attendees %}
+    <section><h2>Who's going</h2>
+      {% if attendees %}<ul class="people">{% for a in attendees %}<li>{{ a }}</li>{% endfor %}</ul>
+      {% else %}<p class="muted">Nobody yet. Be the first.</p>{% endif %}
+    </section>
+    {% endif %}
+  </div>
+
+  <aside>
+    {% if my_reg and my_reg.status == 'confirmed' %}
+      {% set t = (tickets|selectattr('t.id', 'equalto', my_reg.ticket_type_id)|first) %}
+      {{ stub(my_reg, ev, t.t if t else {'name': 'Ticket'}, user, mini=True) }}
+      <p style="margin-top:14px"><a class="btn" href="/t/{{ my_reg.code }}">View your ticket</a></p>
+    {% elif my_reg and my_reg.status == 'pending' %}
+      <div class="panel">
+        <h3>Finish paying</h3>
+        <p>Your spot is held for a few more minutes.</p>
+        <form method="post" action="/t/{{ my_reg.code }}/pay">{{ csrf_field() }}<button type="submit">Continue to payment</button></form>
+      </div>
+    {% elif state.code == 'open' %}
+      <form class="panel" method="post" action="/e/{{ ev.slug }}/register">
+        {{ csrf_field() }}
+        <h3>Get a spot</h3>
+        {% set first_avail = tickets|selectattr('available')|first %}
+        <ul class="tickets">
+        {% for row in tickets %}
+          <li class="{% if not row.available %}soldout{% endif %}"><label>
+            <input type="radio" name="ticket_type_id" value="{{ row.t.id }}" {% if not row.available %}disabled{% elif first_avail and first_avail.t.id == row.t.id %}checked{% endif %} required>
+            <span>{{ row.t.name }}{% if row.t.description %}<small>{{ row.t.description }}</small>{% endif %}{% if not row.available %}<small>Sold out</small>{% endif %}</span>
+            <span class="price">{{ money(row.t.price_cents) }}</span>
+          </label></li>
+        {% endfor %}
+        </ul>
+        <div class="field">
+          <label for="gamer_tag">Gamer tag <span class="hint">What other attendees see. Leave blank to use your name.</span></label>
+          <input id="gamer_tag" name="gamer_tag" type="text" maxlength="40" value="{{ user.display_name if user else '' }}">
+        </div>
+        <button type="submit" style="width:100%;justify-content:center">{% if user %}Register{% else %}Sign in to register{% endif %}</button>
+        <p class="meta small" style="margin:10px 0 0">Tickets are sold by the organizer, who sets the refund policy. See the <a href="/terms#tickets">Terms</a>.</p>
+        {% if ev.registration_closes_at %}<p class="meta small" style="margin:10px 0 0">Registration closes {{ fmt_dt(ev.registration_closes_at, ev.timezone) }}.</p>{% endif %}
+      </form>
+    {% else %}
+      <div class="panel"><h3>{% if state.code == 'not_open' %}Not open yet{% elif state.code == 'sold_out' %}Full{% else %}Registration closed{% endif %}</h3><p style="margin:0">{{ state.message }}</p></div>
+    {% endif %}
+    {% if is_owner %}<p style="margin-top:14px"><a class="btn ghost" href="/manage/{{ ev.id }}">Manage this event</a></p>{% endif %}
+  </aside>
+</div>
+{% endblock %}

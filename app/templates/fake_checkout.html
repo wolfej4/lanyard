@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field with context %}
+{% block title %}Test checkout | {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="notice warn">Development mode. No money moves. Set STRIPE_SECRET_KEY to use real Stripe Checkout.</div>
+  <h1>Pay {{ money(reg.amount_cents) }}</h1>
+  <p class="lede">{{ ticket.name }} for {{ ev.title }}</p>
+  <div class="actions">
+    <form method="post" action="/dev/checkout/{{ reg.code }}">{{ csrf_field() }}<button type="submit">Pay (simulated)</button></form>
+    <a href="/e/{{ ev.slug }}?checkout=cancelled">Cancel</a>
+  </div>
+</div>
+{% endblock %}

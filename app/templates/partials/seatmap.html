@@ -1,0 +1,17 @@
+<div id="seatmap">
+  {% if seat_error %}<div class="notice error" role="alert">{{ seat_error }}</div>{% endif %}
+  <div class="seatmap">
+    <div class="seats" style="grid-template-columns: repeat({{ seats.grid[0]|length }}, 40px)">
+      {% for row in seats.grid %}{% for c in row %}
+        {% if c.blocked %}<span class="seat gap" aria-hidden="true"></span>
+        {% elif c.label == seats.mine %}<span class="seat mine" title="Your seat">{{ c.label }}</span>
+        {% elif c.label in seats.taken %}<span class="seat taken" title="{{ seats.names.get(c.label, 'Taken') }}">{{ c.label }}</span>
+        {% elif can_pick %}<button class="seat" type="button" hx-post="/t/{{ reg.code }}/seat" hx-vals='{"seat": "{{ c.label }}"}' hx-target="#seatmap" hx-swap="outerHTML" aria-label="Take seat {{ c.label }}">{{ c.label }}</button>
+        {% else %}<span class="seat">{{ c.label }}</span>{% endif %}
+      {% endfor %}{% endfor %}
+    </div>
+  </div>
+  <div class="legend"><span><i></i>Open</span><span><i class="t"></i>Taken</span>{% if seats.mine or can_pick %}<span><i class="m"></i>Yours</span>{% endif %}</div>
+  {% if can_pick and seats.mine %}<p class="small muted" style="margin-top:8px">You're in {{ seats.mine }}. Tap an open seat to move.</p>{% endif %}
+</div>
+{% if is_htmx and reg and seats.mine %}<span class="seatbig" id="stub-seat" hx-swap-oob="true">{{ seats.mine }}</span>{% endif %}

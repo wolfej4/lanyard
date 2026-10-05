@@ -1,0 +1,17 @@
+{% set poll = p.poll %}
+<div class="poll" id="poll-{{ poll.id }}">
+  <h3>{{ poll.question }}{% if poll.closed %} <span class="meta">(closed)</span>{% endif %}</h3>
+  {% for o in p.options %}
+    {% if attending and not poll.closed %}
+    <form hx-post="/polls/{{ poll.id }}/vote" hx-target="#poll-{{ poll.id }}" hx-swap="outerHTML" method="post" action="/polls/{{ poll.id }}/vote">
+      <input type="hidden" name="option_id" value="{{ o.id }}">
+      <button class="opt{% if p.mine == o.id %} mine{% endif %}" type="submit" aria-pressed="{{ 'true' if p.mine == o.id else 'false' }}">
+        <span class="bar" style="width: {{ o.pct }}%"></span><span>{{ o.label }}</span><span>{{ o.count }}</span>
+      </button>
+    </form>
+    {% else %}
+    <div class="opt{% if p.mine == o.id %} mine{% endif %}"><span class="bar" style="width: {{ o.pct }}%"></span><span>{{ o.label }}</span><span>{{ o.count }}</span></div>
+    {% endif %}
+  {% endfor %}
+  <div class="meta small">{{ p.total }} vote{{ '' if p.total == 1 else 's' }}{% if p.mine %}. Tap another option to change yours.{% endif %}</div>
+</div>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ settings.site_name }}{% endblock %}</title>
+<meta name="description" content="{% block description %}Find LAN parties near you, or host your own: registration, tickets, seating, polls and tournaments.{% endblock %}">
+{% block head %}{% endblock %}
+<link rel="preload" href="/static/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/site.css">
+<script src="/static/js/htmx.min.js" defer></script>
+<script src="/static/js/app.js" defer></script>
+</head>
+<body hx-headers='{"X-CSRF-Token": "{{ csrf }}"}'>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="/">{{ settings.site_name }}</a>
+    <nav aria-label="Main">
+      <a href="/events">Find<span class="long"> a LAN</span></a>
+      <a href="/manage">Host<span class="long"> a LAN</span></a>
+      {% if user %}
+        <a href="/me"><span class="long">My tickets</span><span class="short">Tickets</span></a>
+        {% if user.is_admin %}<a href="/admin">Admin</a>{% endif %}
+        <form class="signout" method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf }}"><button class="link" type="submit">Sign out</button></form>
+      {% else %}
+        <a class="btn small" href="/login?next={{ request.url.path }}">Sign in</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+  {% block content %}{% endblock %}
+  </div>
+</main>
+<footer>
+  <div class="wrap foot">
+    <p>{{ settings.site_name }} helps people find and run LAN parties. Organizers are responsible for their own events.</p>
+    <nav aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a>{% if settings.contact_email %}<a href="mailto:{{ settings.contact_email }}">Contact</a>{% endif %}</nav>
+  </div>
+</footer>
+</body>
+</html>

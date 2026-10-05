@@ -1,0 +1,57 @@
+services:
+  app:
+    build: .
+    image: ${IMAGE:-ghcr.io/wolfej4/lanyard:latest}
+    container_name: ${CONTAINER_NAME:-lanyard}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      SITE_NAME: ${SITE_NAME:-Lanyard}
+      BASE_URL: ${BASE_URL:?Set BASE_URL to your public https:// address}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY (openssl rand -hex 32)}
+      DATABASE_URL: postgresql://lanyard:${POSTGRES_PASSWORD}@db:5432/lanyard
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      SMTP_SSL: ${SMTP_SSL:-false}
+      MAIL_FROM: ${MAIL_FROM:-Lanyard <noreply@example.com>}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      CURRENCY: ${CURRENCY:-usd}
+      PLATFORM_FEE_PERCENT: ${PLATFORM_FEE_PERCENT:-0}
+      DEV_FAKE_PAYMENTS: ${DEV_FAKE_PAYMENTS:-false}
+      FREE_CAPACITY_LIMIT: ${FREE_CAPACITY_LIMIT:-20}
+      MAX_CAPACITY: ${MAX_CAPACITY:-2000}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-*}
+      OPERATOR_NAME: ${OPERATOR_NAME:?Set OPERATOR_NAME to the person or business running the site}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:?Set CONTACT_EMAIL for the Terms and Privacy pages}
+      GOVERNING_LAW: ${GOVERNING_LAW:-}
+      LEGAL_UPDATED: ${LEGAL_UPDATED:-October 4, 2026}
+      MIN_AGE: ${MIN_AGE:-13}
+      TZ: ${TZ:-America/Chicago}
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  db:
+    image: postgres:16-alpine
+    container_name: ${CONTAINER_NAME:-lanyard}-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lanyard
+      POSTGRES_DB: lanyard
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - ${DATA_PATH:-./data}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lanyard -d lanyard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

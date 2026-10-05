@@ -1,0 +1,21 @@
+You're in: {{ event.title }}
+
+Your spot at {{ event.title }} is confirmed.
+
+When:   {{ when }}
+Where:  {{ event.venue_name or "See event page" }}{% if event.city %}, {{ event.city }}{% endif %}
+
+Ticket: {{ ticket_name }} ({{ price }})
+Code:   {{ reg.code }}
+{% if event.seating_enabled %}
+
+Pick your seat: {{ base }}/t/{{ reg.code }}
+{% else %}
+
+Your ticket: {{ base }}/t/{{ reg.code }}
+{% endif %}
+{% if event.bring_notes %}
+
+What to bring:
+{{ event.bring_notes }}
+{% endif %}

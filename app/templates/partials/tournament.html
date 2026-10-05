@@ -1,0 +1,24 @@
+{% set t = tv.t %}
+<div class="tourney" id="tourney-{{ t.id }}">
+  <header>
+    <h3 style="margin:0">{{ t.game }}</h3>
+    <span class="meta">{{ t.format or "Format to be announced" }}{% if t.team_size > 1 %}, teams of {{ t.team_size }}{% endif %}{% if t.starts_at %}, starts {{ fmt_dt(t.starts_at, ev.timezone, False) }}{% endif %}</span>
+  </header>
+  <p class="small muted" style="margin:6px 0 10px">{{ tv.people|length }}{% if t.max_entrants %} of {{ t.max_entrants }}{% endif %} signed up{% if not t.signups_open %}, signups locked{% endif %}.
+  {% if t.bracket_url %}<a href="{{ t.bracket_url }}" target="_blank" rel="noopener nofollow">Open the bracket</a>{% endif %}</p>
+  {% if tv.teams %}
+    {% if ev.show_attendees or attending or is_owner %}<div class="teams">{% for no, names in tv.teams.items() %}<div><b>Team {{ no }}</b><br>{{ names|join(", ") }}</div>{% endfor %}</div>{% endif %}
+  {% elif tv.people and (ev.show_attendees or attending or is_owner) %}
+    <ul class="people">{% for p in tv.people %}<li>{{ p.name }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if attending %}
+    <div style="margin-top:10px">
+    {% if tv.joined and t.signups_open %}
+      <button class="ghost small" hx-post="/tournaments/{{ t.id }}/leave" hx-target="#tourney-{{ t.id }}" hx-swap="outerHTML">Leave</button>
+    {% elif tv.joined %}<span class="meta">You're in.</span>
+    {% elif t.signups_open and not tv.full %}
+      <button class="small" hx-post="/tournaments/{{ t.id }}/join" hx-target="#tourney-{{ t.id }}" hx-swap="outerHTML">Sign up</button>
+    {% endif %}
+    </div>
+  {% endif %}
+</div>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf_field with context %}
+{% block title %}Sign in | {{ settings.site_name }}{% endblock %}
+{% block head %}<meta name="robots" content="noindex"><meta name="referrer" content="no-referrer">{% endblock %}
+{% block content %}
+<div class="narrow">
+{% if valid %}
+  <h1>Sign in as {{ email }}</h1>
+  <form method="post" action="/auth/{{ token }}">{{ csrf_field() }}<button type="submit">Sign in</button></form>
+{% else %}
+  <h1>That link has expired</h1>
+  <p class="lede">Sign-in links work once and last 15 minutes. Request a new one.</p>
+  <a class="btn" href="/login">Get a new link</a>
+{% endif %}
+</div>
+{% endblock %}

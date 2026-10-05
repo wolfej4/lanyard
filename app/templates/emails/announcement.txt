@@ -1,0 +1,6 @@
+{{ event.title }}: update from {{ author }}
+
+{{ body }}
+
+Event page: {{ base }}/e/{{ event.slug }}
+You're getting this because you're registered for {{ event.title }}.

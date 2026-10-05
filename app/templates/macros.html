@@ -1,0 +1,30 @@
+{% macro csrf_field() %}<input type="hidden" name="csrf_token" value="{{ csrf }}">{% endmacro %}
+
+{% macro notices(msg=None, error=None) %}
+{% if msg %}<div class="notice" role="status">{{ msg }}</div>{% endif %}
+{% if error %}<div class="notice error" role="alert">{{ error }}</div>{% endif %}
+{% endmacro %}
+
+{% macro stub(reg, ev, ticket, holder, fresh=False, mini=False) %}
+{% set loc = utc_to_local(ev.start_at, ev.timezone) %}
+<article class="stub{% if reg.status == 'pending' %} pending{% elif reg.status not in ('confirmed',) %} void{% endif %}{% if fresh %} fresh{% endif %}{% if mini %} mini{% endif %}" aria-label="Ticket {{ reg.code }}">
+  <div class="body">
+    <p class="ev">{{ ev.title }}</p>
+    <dl>
+      <dt>When</dt><dd>{{ fmt_range(ev.start_at, ev.end_at, ev.timezone) }}</dd>
+      {% if ev.venue_name or ev.city %}<dt>Where</dt><dd>{{ ev.venue_name }}{% if ev.venue_name and ev.city %}, {% endif %}{{ ev.city }}</dd>{% endif %}
+      {% if not mini %}<dt>Holder</dt><dd>{{ reg.gamer_tag or holder.name }}</dd>
+      <dt>Ticket</dt><dd>{{ ticket.name }}, {{ money(reg.amount_cents) }}</dd>{% endif %}
+      {% if reg.status == 'pending' %}<dt>Status</dt><dd>Waiting for payment</dd>
+      {% elif reg.status == 'cancelled' %}<dt>Status</dt><dd>Cancelled</dd>
+      {% elif reg.status == 'refunded' %}<dt>Status</dt><dd>Refunded</dd>{% endif %}
+    </dl>
+  </div>
+  {% if not mini %}
+  <div class="tear">
+    <div><span class="lbl">Seat</span><span class="seatbig" id="stub-seat">{{ reg.seat or ("Pick" if ev.seating_enabled else "Open") }}</span></div>
+    <div><span class="lbl">Code</span><span class="code">{{ reg.code }}</span></div>
+  </div>
+  {% endif %}
+</article>
+{% endmacro %}
